@@ -1,8 +1,8 @@
-﻿using EPiServer.Notification;
+﻿using System;
+using System.Collections.Generic;
+using EPiServer.Notification;
 using EPiServer.ServiceLocation;
 using RestSharp;
-using System;
-using System.Collections.Generic;
 
 namespace EPiServer.Translate
 {
@@ -58,7 +58,7 @@ namespace EPiServer.Translate
                 }
                 catch(Exception e)
                 {
-                    // if the post fails call the failedAction 
+                    // if the post fails call the failedAction
                     if(failedAction != null)
                         failedAction(message, e);
                 }

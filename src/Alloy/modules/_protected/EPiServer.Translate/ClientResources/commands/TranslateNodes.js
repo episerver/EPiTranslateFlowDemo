@@ -19,7 +19,7 @@
         label: "Translate nodes",
 
         // Set the icon for the command
-        iconClass: "epi-iconReload",
+        iconClass: "epi-iconWebsite", //http://ux.episerver.com/#icons
 
         postscript: function () {
             this.inherited(arguments);

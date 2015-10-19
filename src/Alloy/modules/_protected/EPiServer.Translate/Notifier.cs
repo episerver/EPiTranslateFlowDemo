@@ -1,10 +1,10 @@
-﻿using EPiServer.Core;
+﻿using System;
+using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Notification;
 using EPiServer.Web.Routing;
-using System;
 
 namespace EPiServer.Translate
 {
@@ -91,6 +91,7 @@ namespace EPiServer.Translate
             });
 
             var changedBy = new NotificationUser(change.ChangedBy);
+
             // create the notification message
             var notificationMessage = new NotificationMessage
             {
@@ -98,9 +99,7 @@ namespace EPiServer.Translate
                 Recipients = new[] { changedBy },
                 ChannelName = "translate",
                 Subject = string.Format("{0} was added to {1}", content.Name, project.Name),
-                Content = string.Format("[{0}]({1})", content.Name, editLink),
-                Category = new Uri("http://www.contoso.com/"),
-                TypeName = "Translation"
+                Content = string.Format("[{0}]({1})", content.Name, editLink)
             };
 
             return notificationMessage;

@@ -1,18 +1,18 @@
-﻿using EPiServer.Core;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
+using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.DataAccess;
 using EPiServer.Globalization;
 using EPiServer.Security;
 using EPiServer.Shell.Services.Rest;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Web.Mvc;
 
 namespace EPiServer.Translate
 {
-    [RestStore("translate")]
+    [RestStore("translate")] // Register the store
     public class TranslateStore : RestControllerBase
     {
         private readonly IContentRepository _contentRepository;
@@ -35,15 +35,15 @@ namespace EPiServer.Translate
             // load the content for the node
             var content = _contentRepository.Get<IContent>(id);
 
-            // get the references to the decendents of id
-            var descendents = _contentRepository.GetDescendents(id);
+            // get the references to the decendents of id and add the id
+            var descendents = _contentRepository.GetDescendents(id).Union(new[] { id });
             
-            // create a language selector that fallsback to the master language if the current
+            // create a language selector that fall back to the master language if the current
             // content language can't be found
             var languageSelector = LanguageSelector.Fallback(currentContentLanguage.Name, true);
 
             // batch load the data for the descendents            
-            var itemsToTranslate = _contentRepository.GetItems(descendents, languageSelector).Union(new[] { content });
+            var itemsToTranslate = _contentRepository.GetItems(descendents, languageSelector);
 
             var newContentLinks = new List<ContentReference>();
             foreach (var descendent in itemsToTranslate)
@@ -89,7 +89,7 @@ namespace EPiServer.Translate
             // create the project and add a project item for each content that has been translated
             _projectRepository.Save(project);
 
-            // create a ProjectItem for each content link that was created before
+            // create a ProjectItem for each content link that was created earlier
             var projectItems = newContentLinks.Select(contentLink => new ProjectItem
             {
                 Category = "default",
