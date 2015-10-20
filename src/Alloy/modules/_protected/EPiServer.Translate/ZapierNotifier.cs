@@ -70,7 +70,7 @@ namespace EPiServer.Translate
                     continue;
 
                 // create a new notification and post it
-                _notifier.PostNotificationAsync(CreateNotification(project, item)).Wait();
+                _notifier.PostNotificationAsync(CreateNotification(project, item));
             }
         }
 

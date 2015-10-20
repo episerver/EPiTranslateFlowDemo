@@ -21,10 +21,10 @@
             originalMethod.call(this);
 
             //Create our TranslateNodes command
-            var refreshCommand = new TranslateNodes(this._settings);
+            var translateCommand = new TranslateNodes(this._settings);
 
             // Add the commands to the list of available commands
-            this.commands.push(refreshCommand);
+            this.commands.push(translateCommand);
         }
     });
 
