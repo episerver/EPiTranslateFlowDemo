@@ -24,7 +24,7 @@ namespace EPiServer.Translate
             var preferencesRegister = context.Locate.Advanced.GetInstance<INotificationPreferenceRegister>();
 
             // register the ZapierNotificationProvider to handle all notifications created on the "translate" channel
-            preferencesRegister.RegisterDefaultPreference("translate", "zapier", s => s);
+            preferencesRegister.RegisterDefaultPreference(ZapireNotificationFormatter.ChannelName, ZapireNotificationProvider.Name, s => s);
 
             // get the dependent services from the IoC container
             _projectRespository = context.Locate.Advanced.GetInstance<ProjectRepository>();
@@ -70,7 +70,7 @@ namespace EPiServer.Translate
                     continue;
 
                 // create a new notification and post it
-                _notifier.PostNotificationAsync(CreateNotification(project, item));
+                _notifier.PostNotificationAsync(CreateNotification(project, item)).Wait();
             }
         }
 
@@ -82,9 +82,8 @@ namespace EPiServer.Translate
             // cast it to change trackable to be able to get the user that changed the item
             var change = content as IChangeTrackable;
 
-            // wait for https://jira.ep.se/browse/CMS-1590
             // get the edit link to the content
-            var editLink = _urlResolver.GetEditViewUrl(content.ContentLink, new EditUrlArguments
+            var editUrl = _urlResolver.GetEditViewUrl(content.ContentLink, new EditUrlArguments
             {
                 ForceEditHost = true, 
                 ForceHost = true,
@@ -96,11 +95,12 @@ namespace EPiServer.Translate
             // create the notification message
             var notificationMessage = new NotificationMessage
             {
+                TypeName = "translate",
                 Sender = changedBy,
                 Recipients = new[] { changedBy },
-                ChannelName = "translate",
+                ChannelName = ZapireNotificationFormatter.ChannelName,
                 Subject = string.Format("{0} was added to {1}", content.Name, project.Name),
-                Content = string.Format("[{0}]({1})", content.Name, editLink)
+                Content = string.Format("[{0}]({1})", content.Name, editUrl)
             };
 
             return notificationMessage;

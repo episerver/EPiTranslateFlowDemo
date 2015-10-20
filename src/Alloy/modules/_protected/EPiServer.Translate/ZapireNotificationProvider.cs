@@ -16,16 +16,20 @@ namespace EPiServer.Translate
 
         public ZapireNotificationProvider()
         {
+            // link to the trello board: https://trello.com/b/oQAFDog0
+
             // create a rest client and use the url provided by Zapier
             _client = new RestClient("https://zapier.com/hooks/catch/3t0dam/");
         }
+
+        public const string Name = "zapier";
 
         /// <summary>
         /// Gets the name of the provider.
         /// </summary>
         public string ProviderName
         {
-            get { return "zapier"; }
+            get { return Name; }
         }
 
         /// <summary>

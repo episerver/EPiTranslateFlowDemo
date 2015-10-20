@@ -17,6 +17,8 @@ namespace EPiServer.Translate
             return notifications;
         }
 
+        public const string ChannelName = "translate";
+
         /// <summary>
         /// The name of the formatter
         /// </summary>
@@ -27,7 +29,7 @@ namespace EPiServer.Translate
         /// </summary>
         public IEnumerable<string> SupportedChannelNames
         {
-            get { return new[] {"translate"}; }
+            get { return new[] { ChannelName }; }
         }
     }
 }

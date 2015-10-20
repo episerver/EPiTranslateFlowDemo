@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web.Mvc;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
@@ -36,14 +37,14 @@ namespace EPiServer.Translate
             var content = _contentRepository.Get<IContent>(id);
 
             // get the references to the decendents of id and add the id
-            var descendents = _contentRepository.GetDescendents(id).Union(new[] { id });
+            var descendents = _contentRepository.GetDescendents(id);
             
             // create a language selector that fall back to the master language if the current
             // content language can't be found
             var languageSelector = LanguageSelector.Fallback(currentContentLanguage.Name, true);
 
             // batch load the data for the descendents            
-            var itemsToTranslate = _contentRepository.GetItems(descendents, languageSelector);
+            var itemsToTranslate = _contentRepository.GetItems(descendents, languageSelector).Union(new[] { content });
 
             var newContentLinks = new List<ContentReference>();
             foreach (var descendent in itemsToTranslate)
