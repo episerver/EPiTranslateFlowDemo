@@ -1,5 +1,4 @@
-﻿using System;
-using EPiServer.Core;
+﻿using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
@@ -36,10 +35,15 @@ namespace EPiServer.Translate
             ProjectRepository.ProjectItemsSaved += ProjectRepositoryOnProjectItemsSaved;
 
             // listen to changes made to activities that belongs to a project
-            // var  projectActivityFeed = context.Locate.Advanced.GetInstance<ProjectActivityFeed>();
+            // var projectActivityFeed = context.Locate.Advanced.GetInstance<ProjectActivityFeed>();
             // projectActivityFeed.ActivityCreated += (sender, args) => { };
             // projectActivityFeed.ActivityUpdated += (sender, args) => { };
             // projectActivityFeed.ActivityDeleted += (sender, args) => { };
+            
+            // Comment events
+            // var activityCommentRepository = context.Locate.Advanced.GetInstance<ActivityCommentRepository>();
+            // activityCommentRepository.CommentCreated += (sender, args) => { };
+            // ...
 
             // listen to standard episerver content events
             var contentEvents = context.Locate.Advanced.GetInstance<IContentEvents>();
@@ -70,7 +74,7 @@ namespace EPiServer.Translate
                     continue;
 
                 // create a new notification and post it
-                _notifier.PostNotificationAsync(CreateNotification(project, item));
+                _notifier.PostNotificationAsync(CreateNotification(project, item)).Wait();
             }
         }
 

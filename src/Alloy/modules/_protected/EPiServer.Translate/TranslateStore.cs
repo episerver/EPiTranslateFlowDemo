@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Web.Mvc;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
@@ -84,7 +83,7 @@ namespace EPiServer.Translate
             // create a new project and add a marker in the name
             var project = new Project
             {
-                Name = content.Name + " [translate]"
+                Name = string.Format("{0}({1}) [translate]", content.Name, currentContentLanguage)
             };
 
             // create the project and add a project item for each content that has been translated
