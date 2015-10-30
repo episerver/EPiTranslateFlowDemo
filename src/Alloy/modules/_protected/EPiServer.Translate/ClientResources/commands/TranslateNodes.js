@@ -34,8 +34,10 @@
             var contentLink = selectionData.contentLink;
 
             this.translateStore.executeMethod("Translate", contentLink).then(function (projectId) {
-                // reload the tree
+                // reload the children of the selected item
                 topic.publish("/epi/cms/contentdata/childrenchanged", selectionData);
+                // reload the selected item
+                topic.publish("/epi/cms/contentdata/updated", selectionData);
 
                 // load the project overview for the newly created project
                 topic.publish("/epi/shell/context/request", { uri: "epi.cms.project:///" + projectId }, { sender: sender });
