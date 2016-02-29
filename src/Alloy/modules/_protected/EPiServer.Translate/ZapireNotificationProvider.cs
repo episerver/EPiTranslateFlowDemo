@@ -45,7 +45,9 @@ namespace EPiServer.Translate
         /// <param name="messages">The messages to send.</param>
         /// <param name="succeededAction">A success action that should be called for successfully sent messages.</param>
         /// <param name="failedAction">A failure action that should be called when a message send operation fails.</param>
-        public void Send(IEnumerable<ProviderNotificationMessage> messages, Action<ProviderNotificationMessage> succeededAction, Action<ProviderNotificationMessage, Exception> failedAction)
+        public void Send(IEnumerable<ProviderNotificationMessage> messages, 
+            Action<ProviderNotificationMessage> succeededAction, 
+            Action<ProviderNotificationMessage, Exception> failedAction)
         {
             foreach (var message in messages)
             {

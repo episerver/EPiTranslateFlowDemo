@@ -10,7 +10,11 @@ namespace EPiServer.Translate
     [ServiceConfiguration(typeof(INotificationFormatter))]
     public class ZapireNotificationFormatter : INotificationFormatter
     {
-        public IEnumerable<FormatterNotificationMessage> FormatMessages(IEnumerable<FormatterNotificationMessage> notifications, string recipient, NotificationFormat format, string notificationChannelName)
+        public IEnumerable<FormatterNotificationMessage> FormatMessages(
+            IEnumerable<FormatterNotificationMessage> notifications, 
+            string recipient, 
+            NotificationFormat format, 
+            string notificationChannelName)
         {
             // we do not want to change the messages, so we just return them as they are
             // but you have the possibility to group several messages into one if you would like to

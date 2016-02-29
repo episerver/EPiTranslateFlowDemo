@@ -1,4 +1,5 @@
-﻿using EPiServer.Core;
+﻿using System;
+using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
@@ -15,7 +16,7 @@ namespace EPiServer.Translate
     {
         private IContentRepository _contentRepository;
         private EditUrlResolver _urlResolver;
-        private ProjectRepository _projectRespository;
+        private ProjectRepository _projectRepository;
         private INotifier _notifier;
 
         public void Initialize(InitializationEngine context)
@@ -23,10 +24,13 @@ namespace EPiServer.Translate
             var preferencesRegister = context.Locate.Advanced.GetInstance<INotificationPreferenceRegister>();
 
             // register the ZapierNotificationProvider to handle all notifications created on the "translate" channel
-            preferencesRegister.RegisterDefaultPreference(ZapireNotificationFormatter.ChannelName, ZapireNotificationProvider.Name, s => s);
+            preferencesRegister.RegisterDefaultPreference(
+                ZapireNotificationFormatter.ChannelName, 
+                ZapireNotificationProvider.Name, 
+                s => s);
 
             // get the dependent services from the IoC container
-            _projectRespository = context.Locate.Advanced.GetInstance<ProjectRepository>();
+            _projectRepository = context.Locate.Advanced.GetInstance<ProjectRepository>();
             _notifier = context.Locate.Advanced.GetInstance<INotifier>();
             _contentRepository = context.Locate.Advanced.GetInstance<IContentRepository>();
             _urlResolver = context.Locate.Advanced.GetInstance<EditUrlResolver>();
@@ -46,7 +50,7 @@ namespace EPiServer.Translate
             // ...
 
             // listen to standard episerver content events
-            var contentEvents = context.Locate.Advanced.GetInstance<IContentEvents>();
+            // var contentEvents = context.Locate.Advanced.GetInstance<IContentEvents>();
             // contentEvents.CheckedInContent += (sender, args) => { };
             // contentEvents.CheckingInContent += (sender, args) => { };
             // contentEvents.CreatedContent += (sender, args) => { };
@@ -66,13 +70,13 @@ namespace EPiServer.Translate
         {
             foreach (var item in e.ProjectItems)
             {
-                // get the project from the project repository
-                var project = _projectRespository.Get(item.ProjectID);
-                
                 // continue if the project item does not belong to a project that has our translation marker
-                if (!project.Name.Contains("[translate]"))
+                if (!item.Category.Equals("translate", StringComparison.OrdinalIgnoreCase))
                     continue;
 
+                // get the project from the project repository
+                var project = _projectRepository.Get(item.ProjectID);
+                
                 // create a new notification and post it
                 _notifier.PostNotificationAsync(CreateNotification(project, item)).Wait();
             }
@@ -83,9 +87,6 @@ namespace EPiServer.Translate
             // load the content that is associated with the project item
             var content = _contentRepository.Get<IContent>(item.ContentLink);
 
-            // cast it to change trackable to be able to get the user that changed the item
-            var change = content as IChangeTrackable;
-
             // get the edit link to the content
             var editUrl = _urlResolver.GetEditViewUrl(content.ContentLink, new EditUrlArguments
             {
@@ -94,6 +95,8 @@ namespace EPiServer.Translate
                 Language = item.Language
             });
 
+            // cast it to change trackable to be able to get the user that changed the item
+            var change = content as IChangeTrackable;
             var changedBy = new NotificationUser(change.ChangedBy);
 
             // create the notification message

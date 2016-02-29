@@ -30,7 +30,7 @@ namespace EPiServer.Translate
                 throw new ArgumentNullException("id");
 
             // get the the current content language
-            var currentContentLanguage = ContentLanguage.PreferredCulture;
+            var preferredContentLanguage = ContentLanguage.PreferredCulture;
 
             // load the content for the node
             var content = _contentRepository.Get<IContent>(id);
@@ -40,10 +40,11 @@ namespace EPiServer.Translate
             
             // create a language selector that fall back to the master language if the current
             // content language can't be found
-            var languageSelector = LanguageSelector.Fallback(currentContentLanguage.Name, true);
+            var languageSelector = LanguageSelector.Fallback(preferredContentLanguage.Name, true);
 
             // batch load the data for the descendents            
-            var itemsToTranslate = _contentRepository.GetItems(descendents, languageSelector).Union(new[] { content });
+            var itemsToTranslate = _contentRepository.GetItems(descendents, languageSelector)
+                .Union(new[] { content });
 
             var newContentLinks = new List<ContentReference>();
             foreach (var descendent in itemsToTranslate)
@@ -54,11 +55,13 @@ namespace EPiServer.Translate
                     continue;
 
                 // continue if the content already exists in the current content language
-                if(localizableResource.ExistingLanguages.Contains(currentContentLanguage))
+                if(localizableResource.ExistingLanguages.Contains(preferredContentLanguage))
                     continue;
 
                 // create a new version in the preferred culture and copy the values
-                var translatedContent = _contentRepository.CreateLanguageBranch<IContent>(descendent.ContentLink, currentContentLanguage);
+                var translatedContent = _contentRepository.CreateLanguageBranch<IContent>(
+                    descendent.ContentLink, 
+                    preferredContentLanguage);
 
                 // copy the property values from the master language
                 CopyProperties(translatedContent, descendent.Property);
@@ -77,13 +80,10 @@ namespace EPiServer.Translate
             if (!newContentLinks.Any())
                 return new RestStatusCodeResult((int)HttpStatusCode.Conflict);
 
-            // NOTE: Right now it is not possible to inherit from Project and create a special TranslationProject
-            // so we are using a marker in the name
-            
-            // create a new project and add a marker in the name
+            // create a new project
             var project = new Project
             {
-                Name = string.Format("{0}({1}) [translate]", content.Name, currentContentLanguage)
+                Name = string.Format("{0}({1})", content.Name, preferredContentLanguage)
             };
 
             // create the project and add a project item for each content that has been translated
@@ -92,10 +92,10 @@ namespace EPiServer.Translate
             // create a ProjectItem for each content link that was created earlier
             var projectItems = newContentLinks.Select(contentLink => new ProjectItem
             {
-                Category = "default",
+                Category = "translate",
                 ProjectID = project.ID,
                 ContentLink = contentLink,
-                Language = currentContentLanguage
+                Language = preferredContentLanguage
             });
 
             // save the new project items
