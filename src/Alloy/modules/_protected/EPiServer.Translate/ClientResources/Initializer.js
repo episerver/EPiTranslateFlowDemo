@@ -18,9 +18,13 @@
             var registry = this.resolveDependency("epi.storeregistry");
 
             // Get the route for the server side store and create a REST JS store
-            var translateStore = registry.create(
+             registry.create(
                 "epi-translate.translate",
-                routes.getRestPath({ moduleArea: "EPiServer.Translate", storeName: "translate" }));
+                routes.getRestPath({
+                    moduleArea: "EPiServer.Translate",
+                    storeName: "translate"
+                })
+             );
         }
     });
 

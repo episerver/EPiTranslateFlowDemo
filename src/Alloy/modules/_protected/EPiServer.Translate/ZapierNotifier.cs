@@ -4,6 +4,7 @@ using EPiServer.DataAbstraction;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Notification;
+using EPiServer.ServiceLocation;
 using EPiServer.Web.Routing;
 
 namespace EPiServer.Translate
@@ -21,43 +22,16 @@ namespace EPiServer.Translate
 
         public void Initialize(InitializationEngine context)
         {
-            var preferencesRegister = context.Locate.Advanced.GetInstance<INotificationPreferenceRegister>();
-
-            // register the ZapierNotificationProvider to handle all notifications created on the "translate" channel
-            preferencesRegister.RegisterDefaultPreference(
-                ZapireNotificationFormatter.ChannelName, 
-                ZapireNotificationProvider.Name, 
-                s => s);
+            var serviceLocator = context.Locate.Advanced;
 
             // get the dependent services from the IoC container
-            _projectRepository = context.Locate.Advanced.GetInstance<ProjectRepository>();
-            _notifier = context.Locate.Advanced.GetInstance<INotifier>();
-            _contentRepository = context.Locate.Advanced.GetInstance<IContentRepository>();
-            _urlResolver = context.Locate.Advanced.GetInstance<EditUrlResolver>();
+            ResolveDependencies(serviceLocator);
+
+            // register the ZapierNotificationProvider to handle all notifications created on the "translate" channel
+            RegisterNotificationProvider(serviceLocator);
 
             // attach an event handler that listens to ProjectItemsSaved events
             ProjectRepository.ProjectItemsSaved += ProjectRepositoryOnProjectItemsSaved;
-
-            // listen to changes made to activities that belongs to a project
-            // var projectActivityFeed = context.Locate.Advanced.GetInstance<ProjectActivityFeed>();
-            // projectActivityFeed.ActivityCreated += (sender, args) => { };
-            // projectActivityFeed.ActivityUpdated += (sender, args) => { };
-            // projectActivityFeed.ActivityDeleted += (sender, args) => { };
-            
-            // Comment events
-            // var activityCommentRepository = context.Locate.Advanced.GetInstance<ActivityCommentRepository>();
-            // activityCommentRepository.CommentCreated += (sender, args) => { };
-            // ...
-
-            // listen to standard episerver content events
-            // var contentEvents = context.Locate.Advanced.GetInstance<IContentEvents>();
-            // contentEvents.CheckedInContent += (sender, args) => { };
-            // contentEvents.CheckingInContent += (sender, args) => { };
-            // contentEvents.CreatedContent += (sender, args) => { };
-            // contentEvents.CreatingContent += (sender, args) => { };
-            // contentEvents.DeletedContent += (sender, args) => { };
-            // contentEvents.DeletingContent += (sender, args) => { };
-            // ...
         }
 
         public void Uninitialize(InitializationEngine context)
@@ -105,12 +79,32 @@ namespace EPiServer.Translate
                 TypeName = "translate",
                 Sender = changedBy,
                 Recipients = new[] { changedBy },
-                ChannelName = ZapireNotificationFormatter.ChannelName,
+                ChannelName = ZapierNotificationFormatter.ChannelName,
                 Subject = string.Format("{0} was added to {1}", content.Name, project.Name),
                 Content = string.Format("[{0}]({1})", content.Name, editUrl)
             };
 
             return notificationMessage;
+        }
+
+        private void RegisterNotificationProvider(IServiceLocator serviceLocator)
+        {
+            var preferencesRegister = serviceLocator.GetInstance<INotificationPreferenceRegister>();
+
+            // register the ZapierNotificationProvider to handle all notifications created on the "translate" channel
+            preferencesRegister.RegisterDefaultPreference(
+                ZapierNotificationFormatter.ChannelName,
+                ZapierNotificationProvider.Name,
+                s => s);
+        }
+
+        private void ResolveDependencies(IServiceLocator serviceLocator)
+        {
+
+            _projectRepository = serviceLocator.GetInstance<ProjectRepository>();
+            _notifier = serviceLocator.GetInstance<INotifier>();
+            _contentRepository = serviceLocator.GetInstance<IContentRepository>();
+            _urlResolver = serviceLocator.GetInstance<EditUrlResolver>();
         }
     }
 }

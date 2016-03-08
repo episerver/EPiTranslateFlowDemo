@@ -31,24 +31,26 @@
         _execute: function () {
             var selectionData = this.get("selectionData"),
                 sender = this;
-            var contentLink = selectionData.contentLink;
 
-            this.translateStore.executeMethod("Translate", contentLink).then(function (projectId) {
+            this.translateStore.executeMethod("Translate", selectionData.contentLink).then(function (projectId) {
                 // reload the children of the selected item
                 topic.publish("/epi/cms/contentdata/childrenchanged", selectionData);
+
                 // reload the selected item
                 topic.publish("/epi/cms/contentdata/updated", selectionData);
 
                 // load the project overview for the newly created project
                 topic.publish("/epi/shell/context/request", { uri: "epi.cms.project:///" + projectId }, { sender: sender });
-            }).otherwise(function() {
-                console.log("could not translate the nodes");
+            }).otherwise(function (ex) {
+                console.log("could not translate the nodes", ex);
             });
         },
 
         _onModelChange: function () {
             // enable the command if there is a selection in the tree
-            this.set("canExecute", !!this.get("selectionData"));
+            var selection = this.get("selectionData");
+
+            this.set("canExecute", !!selection && !!selection.missingLanguageBranch);
         }
     });
 });

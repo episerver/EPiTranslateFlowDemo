@@ -8,7 +8,7 @@ namespace EPiServer.Translate
     /// We are using a BETA API
     /// </summary>
     [ServiceConfiguration(typeof(INotificationFormatter))]
-    public class ZapireNotificationFormatter : INotificationFormatter
+    public class ZapierNotificationFormatter : INotificationFormatter
     {
         public IEnumerable<FormatterNotificationMessage> FormatMessages(
             IEnumerable<FormatterNotificationMessage> notifications, 

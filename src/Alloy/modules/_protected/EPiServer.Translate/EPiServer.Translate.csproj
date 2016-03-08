@@ -157,8 +157,8 @@
     <Compile Include="ZapierNotifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TranslateStore.cs" />
-    <Compile Include="ZapireNotificationFormatter.cs" />
-    <Compile Include="ZapireNotificationProvider.cs" />
+    <Compile Include="ZapierNotificationFormatter.cs" />
+    <Compile Include="ZapierNotificationProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ClientResources\commands\TranslateNodes.js" />

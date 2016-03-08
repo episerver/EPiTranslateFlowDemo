@@ -10,16 +10,16 @@ namespace EPiServer.Translate
     /// We are using a BETA API
     /// </summary>
     [ServiceConfiguration(typeof(INotificationProvider))]
-    public class ZapireNotificationProvider: INotificationProvider
+    public class ZapierNotificationProvider: INotificationProvider
     {
         private readonly RestClient _client;
 
-        public ZapireNotificationProvider()
+        public ZapierNotificationProvider()
         {
             // link to the trello board: https://trello.com/b/oQAFDog0
 
-            // create a rest client and use the url provided by Zapier
-            _client = new RestClient("https://zapier.com/hooks/catch/3t0dam/");
+            // create a rest client and use the url provided by Zapier  https://zapier.com/hooks/catch/3t0dam/
+            _client = new RestClient("https://zapier.com/hooks/catch/2f4idb/");
         }
 
         public const string Name = "zapier";
